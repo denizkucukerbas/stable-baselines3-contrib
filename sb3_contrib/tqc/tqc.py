@@ -284,7 +284,7 @@ class TQC(OffPolicyAlgorithm):
                 next_quantiles, _ = th.sort(next_quantiles.reshape(batch_size, -1))
                 next_quantiles = next_quantiles[:, :n_target_quantiles]
 
-                cvar = calculate_cvar(next_quantiles, self.alpha)
+                cvar = self.calculate_cvar(next_quantiles, self.alpha)
                 adjusted_rewards = replay_data.rewards - cvar
 
                 # td error + entropy term

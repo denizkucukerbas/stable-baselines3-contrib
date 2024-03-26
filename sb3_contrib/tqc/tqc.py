@@ -91,8 +91,8 @@ class TQC(OffPolicyAlgorithm):
         self,
         policy: Union[str, Type[TQCPolicy]],
         env: Union[GymEnv, str],
-        learning_rate: Union[float, Callable] = 3e-4,
         alpha: float,
+        learning_rate: Union[float, Callable] = 3e-4,
         buffer_size: int = 1000000,  # 1e6
         learning_starts: int = 100,
         batch_size: int = 256,

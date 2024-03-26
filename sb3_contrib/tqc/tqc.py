@@ -218,7 +218,7 @@ class TQC(OffPolicyAlgorithm):
       VaR_q = int(th.ceil(th.tensor(num_quantiles * alpha)).item())
 
       # Ensure at least one quantile is included and avoid out-of-bounds index
-      VaR_q = max(1, min(index, num_quantiles))
+      VaR_q = max(1, min(VaR_q, num_quantiles))
 
       # Calculate the mean of the lowest alpha-percent of quantiles
       # We use all quantiles up to the calculated index, as they are sorted in ascending order

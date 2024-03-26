@@ -201,6 +201,31 @@ class TQC(OffPolicyAlgorithm):
         self.critic = self.policy.critic
         self.critic_target = self.policy.critic_target
 
+    def calculate_cvar(quantiles, alpha):
+      """
+      Calculate the Conditional Value at Risk (CVaR) for given quantiles at a specific alpha level.
+
+      Args:
+        quantiles (torch.Tensor): A batch of sorted quantile values, shape (batch_size, num_quantiles).
+                                   Quantiles should be sorted in ascending order.
+        alpha (float): The significance level for CVaR (proportion of worst outcomes to consider).
+
+      Returns:
+        torch.Tensor: The CVaR values for each item in the batch, shape (batch_size, 1).
+      """
+      # Determine the index up to which quantiles are considered based on alpha
+      num_quantiles = quantiles.size(1)
+      VaR_q = int(torch.ceil(torch.tensor(num_quantiles * alpha)).item())
+
+      # Ensure at least one quantile is included and avoid out-of-bounds index
+      VaR_q = max(1, min(index, num_quantiles))
+
+      # Calculate the mean of the lowest alpha-percent of quantiles
+      # We use all quantiles up to the calculated index, as they are sorted in ascending order
+      cVaR = quantiles[:, :VaR_q].mean(dim=1, keepdim=True)
+
+      return cVaR
+
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
         self.policy.set_training_mode(True)
@@ -303,31 +328,6 @@ class TQC(OffPolicyAlgorithm):
         self.logger.record("train/critic_loss", np.mean(critic_losses))
         if len(ent_coef_losses) > 0:
             self.logger.record("train/ent_coef_loss", np.mean(ent_coef_losses))
-
-    def calculate_cvar(quantiles, alpha):
-      """
-      Calculate the Conditional Value at Risk (CVaR) for given quantiles at a specific alpha level.
-
-      Args:
-        quantiles (torch.Tensor): A batch of sorted quantile values, shape (batch_size, num_quantiles).
-                                   Quantiles should be sorted in ascending order.
-        alpha (float): The significance level for CVaR (proportion of worst outcomes to consider).
-
-      Returns:
-        torch.Tensor: The CVaR values for each item in the batch, shape (batch_size, 1).
-      """
-      # Determine the index up to which quantiles are considered based on alpha
-      num_quantiles = quantiles.size(1)
-      VaR_q = int(torch.ceil(torch.tensor(num_quantiles * alpha)).item())
-
-      # Ensure at least one quantile is included and avoid out-of-bounds index
-      VaR_q = max(1, min(index, num_quantiles))
-
-      # Calculate the mean of the lowest alpha-percent of quantiles
-      # We use all quantiles up to the calculated index, as they are sorted in ascending order
-      cVaR = quantiles[:, :VaR_q].mean(dim=1, keepdim=True)
-
-      return cVaR
 
     def learn(
         self: SelfTQC,

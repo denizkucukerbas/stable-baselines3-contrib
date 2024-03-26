@@ -215,7 +215,7 @@ class TQC(OffPolicyAlgorithm):
       """
       # Determine the index up to which quantiles are considered based on alpha
       num_quantiles = quantiles.size(1)
-      VaR_q = int(torch.ceil(torch.tensor(num_quantiles * alpha)).item())
+      VaR_q = int(th.ceil(th.tensor(num_quantiles * alpha)).item())
 
       # Ensure at least one quantile is included and avoid out-of-bounds index
       VaR_q = max(1, min(index, num_quantiles))

@@ -201,7 +201,7 @@ class TQC(OffPolicyAlgorithm):
         self.critic = self.policy.critic
         self.critic_target = self.policy.critic_target
 
-    def calculate_cvar(quantiles, alpha):
+    def calculate_cvar(self, quantiles, alpha):
       """
       Calculate the Conditional Value at Risk (CVaR) for given quantiles at a specific alpha level.
 
